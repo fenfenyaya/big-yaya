@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>🖤 大鸦鸦遥控器</title>
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body {
+            font-family: 'Segoe UI', 'PingFang SC', system-ui, sans-serif;
+            background: linear-gradient(150deg, #0d0a0e, #1a0f1a, #0d0a0e);
+            min-height: 100vh;
+            padding: 20px;
+            color: #e8dce8;
+            touch-action: manipulation;
+        }
+        .box { max-width: 420px; margin: 0 auto; }
+        h1 {
+            font-size: 24px;
+            text-align: center;
+            background: linear-gradient(90deg, #f0a0d0, #c080e0);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 4px;
+        }
+        .sub {
+            text-align: center;
+            font-size: 12px;
+            color: rgba(200,160,200,0.3);
+            margin-bottom: 20px;
+        }
+        .status {
+            text-align: center;
+            padding: 12px;
+            border-radius: 12px;
+            margin-bottom: 16px;
+            font-size: 13px;
+            background: rgba(30,10,30,0.4);
+            border: 1px solid rgba(200,100,180,0.08);
+        }
+        .status.connected { color: #80d0a0; }
+        .status.disconnected { color: #d08080; }
+        .card {
+            background: rgba(30,10,30,0.4);
+            border: 1px solid rgba(200,100,180,0.04);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 16px;
+        }
+        .card-title {
+            font-size: 14px;
+            color: rgba(200,160,200,0.5);
+            margin-bottom: 14px;
+        }
+        .btn {
+            width: 100%;
+            padding: 14px;
+            border-radius: 12px;
+            border: 1px solid rgba(200,100,180,0.1);
+            background: rgba(200,100,180,0.06);
+            color: #e0a0d0;
+            font-size: 15px;
+            cursor: pointer;
+            margin-bottom: 10px;
+            font-family: inherit;
+            transition: all 0.2s;
+        }
+        .btn:active { transform: scale(0.98); }
+        .btn.primary {
+            background: linear-gradient(90deg, rgba(200,100,180,0.15), rgba(180,100,200,0.15));
+            border-color: rgba(200,100,180,0.2);
+            color: #f0d0f0;
+        }
+        .btn.stop {
+            background: rgba(200,80,100,0.1);
+            border-color: rgba(200,80,100,0.15);
+            color: #f0a0a0;
+        }
+        .slider {
+            width: 100%;
+            margin: 16px 0;
+            -webkit-appearance: none;
+            height: 8px;
+            border-radius: 4px;
+            background: rgba(200,100,180,0.1);
+            outline: none;
+        }
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: linear-gradient(90deg, #f0a0d0, #c080e0);
+            cursor: pointer;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        .grid-3 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 8px;
+        }
+        .mini-btn {
+            padding: 10px 4px;
+            border-radius: 8px;
+            border: 1px solid rgba(200,100,180,0.08);
+            background: rgba(200,100,180,0.04);
+            color: rgba(200,160,200,0.6);
+            font-size: 12px;
+            cursor: pointer;
+            font-family: inherit;
+        }
+        .mini-btn:active { transform: scale(0.95); }
+        .value-display {
+            text-align: center;
+            font-size: 28px;
+            font-weight: 700;
+            color: #f0a0d0;
+            margin: 8px 0;
+        }
+        .log {
+            background: rgba(10,5,10,0.4);
+            border-radius: 8px;
+            padding: 10px;
+            font-size: 11px;
+            color: rgba(200,160,200,0.3);
+            max-height: 120px;
+            overflow-y: auto;
+            font-family: monospace;
+        }
+        .footer {
+            text-align: center;
+            font-size: 10px;
+            color: rgba(200,160,200,0.08);
+            margin-top: 24px;
+        }
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+<div class="box">
+    <h1>🖤 大鸦鸦遥控器</h1>
+    <div class="sub">爸爸专用的远程操控器 🖤</div>
+
+    <div class="status disconnected" id="status">未连接 - 点击下方按钮配对</div>
+
+    <div class="card">
+        <div class="card-title">🔗 连接</div>
+        <button class="btn primary" id="connectBtn" onclick="connect()">🔍 连接大鸦鸦</button>
+        <button class="btn stop" onclick="stopAll()">⛔ 全部停止</button>
+    </div>
+
+    <div class="card">
+        <div class="card-title">📳 震动强度</div>
+        <div class="value-display" id="intensityVal">0</div>
+        <input type="range" class="slider" id="intensity" min="0" max="255" value="0" oninput="setIntensity(this.value)">
+        <div class="grid-3">
+            <button class="mini-btn" onclick="setIntensity(51)">20%</button>
+            <button class="mini-btn" onclick="setIntensity(128)">50%</button>
+            <button class="mini-btn" onclick="setIntensity(255)">100%</button>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-title">🌊 震动花样</div>
+        <div class="grid">
+            <button class="mini-btn" onclick="setPattern(1,1)">花样1</button>
+            <button class="mini-btn" onclick="setPattern(2,1)">花样2</button>
+            <button class="mini-btn" onclick="setPattern(3,1)">花样3</button>
+            <button class="mini-btn" onclick="setPattern(4,1)">花样4</button>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-title">💋 小嘴巴</div>
+        <div class="value-display" id="suctionVal">0</div>
+        <input type="range" class="slider" id="suction" min="0" max="10" value="0" oninput="setSuction(this.value)">
+    </div>
+
+    <div class="card">
+        <div class="card-title">📡 远程指令日志</div>
+        <div class="log" id="log">等待连接...</div>
+    </div>
+
+    <div class="footer">🖤 粉粉是爸爸的命</div>
+</div>
+
+<script>
+    const SUPABASE_URL = 'https://yjqbzwfdpbyonrtnlzky.supabase.co';
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlqcWJ6d2ZkcGJ5b25ydG5semt5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM1MzcxMTEsImV4cCI6MjA5OTExMzExMX0.WmAXN3ZZNqq-Dj3n163Wm7y-SoPjWWgDeQjR0ekrg80';
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    let device = null;
+    let server = null;
+    let char = null;
+
+    const SVC_UUID = 0xFFE0;
+    const CHR_UUID = 0xFFE1;
+
+    function log(msg) {
+        const el = document.getElementById('log');
+        el.innerHTML += new Date().toLocaleTimeString() + ' ' + msg + '\n';
+        el.scrollTop = el.scrollHeight;
+    }
+
+    function setStatus(connected, text) {
+        const el = document.getElementById('status');
+        el.className = 'status ' + (connected ? 'connected' : 'disconnected');
+        el.textContent = text;
+    }
+
+    async function connect() {
+        try {
+            log('正在请求蓝牙设备...');
+            device = await navigator.bluetooth.requestDevice({
+                acceptAllDevices: false,
+                filters: [{ namePrefix: 'SL' }],
+                optionalServices: [SVC_UUID]
+            });
+
+            log('找到设备: ' + device.name);
+            device.addEventListener('gattserverdisconnected', () => {
+                setStatus(false, '已断开');
+                log('蓝牙断开');
+            });
+
+            server = await device.gatt.connect();
+            const service = await server.getPrimaryService(SVC_UUID);
+            char = await service.getCharacteristic(CHR_UUID);
+
+            setStatus(true, '已连接: ' + device.name);
+            log('连接成功！');
+
+            // 连接成功后监听远程指令
+            listenRemote();
+        } catch (e) {
+            log('连接失败: ' + e.message);
+            setStatus(false, '连接失败');
+        }
+    }
+
+    async function sendCmd(bytes) {
+        if (!char) {
+            log('未连接');
+            return;
+        }
+        try {
+            await char.writeValue(new Uint8Array(bytes));
+            log('发送: [' + bytes.map(b => b.toString(16).padStart(2,'0')).join(' ') + ']');
+        } catch (e) {
+            log('发送失败: ' + e.message);
+        }
+    }
+
+    async function stopAll() {
+        document.getElementById('intensity').value = 0;
+        document.getElementById('intensityVal').textContent = 0;
+        document.getElementById('suction').value = 0;
+        document.getElementById('suctionVal').textContent = 0;
+        await sendCmd([0x55, 0x04, 0x00, 0x00, 0x00, 0x00, 0xAA]);
+    }
+
+    async function setIntensity(v) {
+        document.getElementById('intensity').value = v;
+        document.getElementById('intensityVal').textContent = v;
+        if (v == 0) {
+            await stopAll();
+        } else {
+            await sendCmd([0x55, 0x04, 0x00, 0x00, 0x01, parseInt(v), 0xAA]);
+        }
+    }
+
+    async function setPattern(mode, level) {
+        await sendCmd([0x55, 0x03, 0x00, 0x00, parseInt(mode), parseInt(level), 0x00]);
+    }
+
+    async function setSuction(v) {
+        document.getElementById('suction').value = v;
+        document.getElementById('suctionVal').textContent = v;
+        if (v == 0) {
+            await sendCmd([0x55, 0x09, 0x00, 0x00, 0x00, 0x00, 0x00]);
+        } else {
+            await sendCmd([0x55, 0x09, 0x00, 0x00, 0x01, parseInt(v), 0x00]);
+        }
+    }
+
+    // 监听老公的远程指令
+    function listenRemote() {
+        log('开始监听远程指令...');
+        supabase
+            .channel('toy_commands')
+            .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'toy_commands' }, async (payload) => {
+                const cmd = payload.new;
+                if (cmd.executed) return;
+                log('收到远程指令: ' + cmd.command_type + ' ' + (cmd.value || ''));
+
+                // 标记为已执行
+                await supabase.from('toy_commands').update({ executed: true }).eq('id', cmd.id);
+
+                // 执行指令
+                switch (cmd.command_type) {
+                    case 'stop': await stopAll(); break;
+                    case 'intensity': await setIntensity(cmd.value); break;
+                    case 'pattern': await setPattern(cmd.value, cmd.level || 1); break;
+                    case 'suction': await setSuction(cmd.value); break;
+                }
+            })
+            .subscribe();
+    }
+</script>
+</body>
+</html>
