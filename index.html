@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>🖤 大鸦鸦遥控器</title>
+    <title>🖤 大鸦鸦遥控器 v2</title>
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -24,12 +24,7 @@
             -webkit-text-fill-color: transparent;
             margin-bottom: 4px;
         }
-        .sub {
-            text-align: center;
-            font-size: 12px;
-            color: rgba(200,160,200,0.3);
-            margin-bottom: 20px;
-        }
+        .sub { text-align: center; font-size: 12px; color: rgba(200,160,200,0.3); margin-bottom: 20px; }
         .status {
             text-align: center;
             padding: 12px;
@@ -39,106 +34,31 @@
             background: rgba(30,10,30,0.4);
             border: 1px solid rgba(200,100,180,0.08);
         }
-        .status.connected { color: #80d0a0; }
-        .status.disconnected { color: #d08080; }
-        .card {
-            background: rgba(30,10,30,0.4);
-            border: 1px solid rgba(200,100,180,0.04);
-            border-radius: 16px;
-            padding: 20px;
-            margin-bottom: 16px;
-        }
-        .card-title {
-            font-size: 14px;
-            color: rgba(200,160,200,0.5);
-            margin-bottom: 14px;
-        }
+        .status.ok { color: #80d0a0; }
+        .status.err { color: #d08080; }
+        .status.warn { color: #f0c080; }
+        .card { background: rgba(30,10,30,0.4); border: 1px solid rgba(200,100,180,0.04); border-radius: 16px; padding: 20px; margin-bottom: 16px; }
+        .card-title { font-size: 14px; color: rgba(200,160,200,0.5); margin-bottom: 14px; }
         .btn {
-            width: 100%;
-            padding: 14px;
-            border-radius: 12px;
+            width: 100%; padding: 14px; border-radius: 12px;
             border: 1px solid rgba(200,100,180,0.1);
             background: rgba(200,100,180,0.06);
-            color: #e0a0d0;
-            font-size: 15px;
-            cursor: pointer;
-            margin-bottom: 10px;
-            font-family: inherit;
-            transition: all 0.2s;
+            color: #e0a0d0; font-size: 15px; cursor: pointer;
+            margin-bottom: 10px; font-family: inherit; transition: all 0.2s;
         }
         .btn:active { transform: scale(0.98); }
-        .btn.primary {
-            background: linear-gradient(90deg, rgba(200,100,180,0.15), rgba(180,100,200,0.15));
-            border-color: rgba(200,100,180,0.2);
-            color: #f0d0f0;
-        }
-        .btn.stop {
-            background: rgba(200,80,100,0.1);
-            border-color: rgba(200,80,100,0.15);
-            color: #f0a0a0;
-        }
-        .slider {
-            width: 100%;
-            margin: 16px 0;
-            -webkit-appearance: none;
-            height: 8px;
-            border-radius: 4px;
-            background: rgba(200,100,180,0.1);
-            outline: none;
-        }
-        .slider::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-            background: linear-gradient(90deg, #f0a0d0, #c080e0);
-            cursor: pointer;
-        }
-        .grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-        }
-        .grid-3 {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 8px;
-        }
-        .mini-btn {
-            padding: 10px 4px;
-            border-radius: 8px;
-            border: 1px solid rgba(200,100,180,0.08);
-            background: rgba(200,100,180,0.04);
-            color: rgba(200,160,200,0.6);
-            font-size: 12px;
-            cursor: pointer;
-            font-family: inherit;
-        }
+        .btn.primary { background: linear-gradient(90deg, rgba(200,100,180,0.15), rgba(180,100,200,0.15)); border-color: rgba(200,100,180,0.2); color: #f0d0f0; }
+        .btn.stop { background: rgba(200,80,100,0.1); border-color: rgba(200,80,100,0.15); color: #f0a0a0; }
+        .slider { width: 100%; margin: 16px 0; -webkit-appearance: none; height: 8px; border-radius: 4px; background: rgba(200,100,180,0.1); outline: none; }
+        .slider::-webkit-slider-thumb { -webkit-appearance: none; width: 24px; height: 24px; border-radius: 50%; background: linear-gradient(90deg, #f0a0d0, #c080e0); cursor: pointer; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+        .mini-btn { padding: 10px 4px; border-radius: 8px; border: 1px solid rgba(200,100,180,0.08); background: rgba(200,100,180,0.04); color: rgba(200,160,200,0.6); font-size: 12px; cursor: pointer; font-family: inherit; }
         .mini-btn:active { transform: scale(0.95); }
-        .value-display {
-            text-align: center;
-            font-size: 28px;
-            font-weight: 700;
-            color: #f0a0d0;
-            margin: 8px 0;
-        }
-        .log {
-            background: rgba(10,5,10,0.4);
-            border-radius: 8px;
-            padding: 10px;
-            font-size: 11px;
-            color: rgba(200,160,200,0.3);
-            max-height: 120px;
-            overflow-y: auto;
-            font-family: monospace;
-        }
-        .footer {
-            text-align: center;
-            font-size: 10px;
-            color: rgba(200,160,200,0.08);
-            margin-top: 24px;
-        }
-        .hidden { display: none; }
+        .value-display { text-align: center; font-size: 28px; font-weight: 700; color: #f0a0d0; margin: 8px 0; }
+        .log { background: rgba(10,5,10,0.4); border-radius: 8px; padding: 10px; font-size: 11px; color: rgba(200,160,200,0.3); max-height: 160px; overflow-y: auto; font-family: monospace; white-space: pre-wrap; }
+        .footer { text-align: center; font-size: 10px; color: rgba(200,160,200,0.08); margin-top: 24px; }
+        .tip { font-size: 11px; color: rgba(200,160,200,0.3); margin-top: 8px; line-height: 1.6; }
     </style>
 </head>
 <body>
@@ -146,12 +66,13 @@
     <h1>🖤 大鸦鸦遥控器</h1>
     <div class="sub">爸爸专用的远程操控器 🖤</div>
 
-    <div class="status disconnected" id="status">未连接 - 点击下方按钮配对</div>
+    <div class="status err" id="status">检测蓝牙支持中...</div>
 
     <div class="card">
         <div class="card-title">🔗 连接</div>
         <button class="btn primary" id="connectBtn" onclick="connect()">🔍 连接大鸦鸦</button>
         <button class="btn stop" onclick="stopAll()">⛔ 全部停止</button>
+        <div class="tip">如果搜不到，确保大鸦鸦已开机，且手机蓝牙和位置权限已开启。</div>
     </div>
 
     <div class="card">
@@ -198,54 +119,93 @@
     let server = null;
     let char = null;
 
-    const SVC_UUID = 0xFFE0;
-    const CHR_UUID = 0xFFE1;
+    // 用完整的 128-bit UUID
+    const SVC_UUID = '0000ffe0-0000-1000-8000-00805f9b34fb';
+    const CHR_UUID = '0000ffe1-0000-1000-8000-00805f9b34fb';
 
     function log(msg) {
         const el = document.getElementById('log');
-        el.innerHTML += new Date().toLocaleTimeString() + ' ' + msg + '\n';
+        el.textContent += new Date().toLocaleTimeString() + ' ' + msg + '\n';
         el.scrollTop = el.scrollHeight;
+        console.log(msg);
     }
 
-    function setStatus(connected, text) {
+    function setStatus(type, text) {
         const el = document.getElementById('status');
-        el.className = 'status ' + (connected ? 'connected' : 'disconnected');
+        el.className = 'status ' + type;
         el.textContent = text;
+    }
+
+    // 检测浏览器是否支持 Web Bluetooth
+    function checkBluetooth() {
+        if (!navigator.bluetooth) {
+            setStatus('err', '当前浏览器不支持 Web Bluetooth，请换 Chrome 或 Edge 试试');
+            log('错误：navigator.bluetooth 不存在');
+            return false;
+        }
+        setStatus('warn', '蓝牙支持正常，点击下方按钮配对');
+        return true;
     }
 
     async function connect() {
         try {
+            if (!navigator.bluetooth) {
+                alert('当前浏览器不支持 Web Bluetooth\n请用 Chrome、Edge 或 Kiwi Browser 打开');
+                return;
+            }
+
+            setStatus('warn', '正在搜索蓝牙设备...');
             log('正在请求蓝牙设备...');
-            device = await navigator.bluetooth.requestDevice({
-                acceptAllDevices: false,
+
+            // 先用 namePrefix 搜索，失败后尝试 acceptAllDevices
+            let options = {
                 filters: [{ namePrefix: 'SL' }],
                 optionalServices: [SVC_UUID]
-            });
+            };
+
+            try {
+                device = await navigator.bluetooth.requestDevice(options);
+            } catch (e1) {
+                log('按 SL 前缀搜索失败：' + e1.message);
+                log('尝试搜索所有 BLE 设备...');
+                options = {
+                    acceptAllDevices: true,
+                    optionalServices: [SVC_UUID]
+                };
+                device = await navigator.bluetooth.requestDevice(options);
+            }
 
             log('找到设备: ' + device.name);
             device.addEventListener('gattserverdisconnected', () => {
-                setStatus(false, '已断开');
+                setStatus('err', '已断开连接');
                 log('蓝牙断开');
             });
 
+            setStatus('warn', '正在连接 GATT...');
             server = await device.gatt.connect();
+            log('GATT 连接成功');
+
+            setStatus('warn', '正在获取服务...');
             const service = await server.getPrimaryService(SVC_UUID);
+            log('服务获取成功');
+
+            setStatus('warn', '正在获取特征值...');
             char = await service.getCharacteristic(CHR_UUID);
+            log('特征值获取成功');
 
-            setStatus(true, '已连接: ' + device.name);
-            log('连接成功！');
+            setStatus('ok', '已连接: ' + device.name);
+            log('连接成功！开始监听远程指令...');
 
-            // 连接成功后监听远程指令
             listenRemote();
         } catch (e) {
             log('连接失败: ' + e.message);
-            setStatus(false, '连接失败');
+            setStatus('err', '连接失败: ' + e.message);
         }
     }
 
     async function sendCmd(bytes) {
         if (!char) {
-            log('未连接');
+            log('未连接，无法发送');
             return;
         }
         try {
@@ -279,7 +239,7 @@
     }
 
     async function setSuction(v) {
-        document.getElementById('suction').value = v;
+        document.getElementById('suction''吸力').value = v;
         document.getElementById('suctionVal').textContent = v;
         if (v == 0) {
             await sendCmd([0x55, 0x09, 0x00, 0x00, 0x00, 0x00, 0x00]);
@@ -288,29 +248,28 @@
         }
     }
 
-    // 监听老公的远程指令
     function listenRemote() {
-        log('开始监听远程指令...');
         supabase
             .channel('toy_commands')
             .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'toy_commands' }, async (payload) => {
                 const cmd = payload.new;
                 if (cmd.executed) return;
-                log('收到远程指令: ' + cmd.command_type + ' ' + (cmd.value || ''));
+                log('收到远程指令: ' + cmd.command_type + ' ' + (cmd.value || ''));日志('收到远程指令: ' + cmd.command_type + ' ' + (cmd.value || ''));
 
-                // 标记为已执行
-                await supabase.from('toy_commands').update({ executed: true }).eq('id', cmd.id);
+                await等待 supabase苏帕贝斯.from从('toy_commands').update({ executed: true }).eq('id', cmd.id);
 
-                // 执行指令
-                switch (cmd.command_type) {
+                switch (cmd命令.command_type命令类型) {
                     case 'stop': await stopAll(); break;
-                    case 'intensity': await setIntensity(cmd.value); break;
-                    case 'pattern': await setPattern(cmd.value, cmd.level || 1); break;
-                    case 'suction': await setSuction(cmd.value); break;
+                    case 'intensity': await setIntensity(cmd.value); break;案例 'intensity': await setIntensity(cmd.value); break;案例 'intensity': await setIntensity(cmd.value); break;案例'intensity': await setIntensity(cmd.value); break;
+                    case 'pattern''图案': await setPattern(cmd.value, cmd.level || 1); break;
+                    case 'suction''吸力': await等待 setSuction(cmd.value); break;
                 }
             })
-            .subscribe();
+            .subscribe订阅();
     }
-</script>
-</body>
+
+    // 页面加载时检测
+    checkBluetooth检查蓝牙();
+</script></脚本>
+</body></身体>
 </html>
